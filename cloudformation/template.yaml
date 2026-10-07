@@ -34,18 +34,14 @@ Parameters:
     Description: Log retention period in days
     AllowedValues: [1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653]
 
-  KmsKey:
+  KmsKeyIdOrAlias:
     Type: String
     Default: ''
-    AllowedPattern: "^(alias/[a-zA-Z0-9_-]+|arn:aws:kms:[a-z0-9-]+:[0-9]+:key/[a-zA-Z0-9_-]+|[a-zA-Z0-9_-]+)?$"
-    ConstraintDescription: "KMS Key can be a key name (e.g., my-key, auto-converted to alias/my-key), a KMS key alias (e.g., alias/my-key), or a full KMS key ARN (e.g., arn:aws:kms:region:account:key/key-id), or leave empty for no KMS encryption"
-    Description: "Optional KMS Key for CloudWatch Log Group encryption. Accepts: key name (my-key), alias (alias/my-key), or ARN (arn:aws:kms:region:account:key/key-id). Plain key names are auto-converted to aliases."
+    Description: "Optional KMS Key ID or Alias for CloudWatch Log Group encryption. Accepts: KMS key ARN (arn:aws:kms:region:account:key/key-id) or alias (alias/my-key). Leave empty for AWS-managed encryption."
 
 Conditions:
   HasCiSuffix: !Not [!Equals [!Ref CiSuffix, ""]]
-  HasCustomKmsKey: !Not [!Equals [!Ref KmsKey, ""]]
-  IsKmsKeyArn: !Equals [!Select [0, !Split [':', !Ref KmsKey]], 'arn']
-  IsKmsKeyAlias: !Equals [!Select [0, !Split ['/', !Ref KmsKey]], 'alias']
+  HasCustomKmsKey: !Not [!Equals [!Ref KmsKeyIdOrAlias, ""]]
 
 Resources:
   CloudWatchLogGroup:
@@ -60,13 +56,7 @@ Resources:
       RetentionInDays: !Ref RetentionInDays  # cfn-lint: disable=CW_LOGGROUP_RETENTION_PERIOD_CHECK
       KmsKeyId: !If
         - HasCustomKmsKey
-        - !If
-          - IsKmsKeyArn
-          - !Ref KmsKey
-          - !If
-            - IsKmsKeyAlias
-            - !Ref KmsKey
-            - !Sub 'alias/${KmsKey}'
+        - !Ref KmsKeyIdOrAlias
         - !Ref AWS::NoValue
       Tags:
         - Key: Environment

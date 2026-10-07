@@ -25,18 +25,18 @@ This is a **nested stack template** designed to be invoked from a parent/root Cl
 
 ### CloudFormation Templates
 
-- **`cloudformation/cw-log-group/template.yaml`** — Nested template for CloudWatch Log Group creation with support for:
+- **`cloudformation/template.yaml`** — Nested template for CloudWatch Log Group creation with support for:
   - Configurable log retention periods
-  - KMS encryption for log data
-  - Project-based naming convention
+  - KMS encryption with alias or ARN support
+  - Hierarchical path-based naming convention
   - Environment and region tagging
   - Optional CI/CD suffix for ephemeral deployments
-  - Comprehensive logging of group creation and configuration
+  - Auto-tagging for resource management
 
 ### Parameter Files
 
-- **`cloudformation/cw-log-group/parameters.json`** — Parameter definitions for CloudWatch Log Group
-- **`cloudformation/cw-log-group/stack-config.json`** — Stack configuration metadata
+- **`cloudformation/parameters.json`** — Parameter definitions for CloudWatch Log Group
+- **`cloudformation/stack-config.json`** — Stack configuration metadata
 
 ## Template Features
 
@@ -66,7 +66,31 @@ This is a **nested stack template** designed to be invoked from a parent/root Cl
 | Parameter | Type | Default | Description |
 | ----------- | ------ | --------- | ------------- |
 | `RetentionInDays` | Number | `7` | Log retention period (1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653) |
-| `KmsKey` | String | `""` | KMS key for encryption (name, alias, or ARN; empty for AWS-managed key) |
+| `KmsKeyIdOrAlias` | String | `""` | KMS key for encryption (alias: `alias/my-key` or ARN: `arn:aws:kms:region:account:key/key-id`; empty for AWS-managed encryption) |
+
+### KMS Key Formats
+
+The `KmsKeyIdOrAlias` parameter accepts two formats:
+
+**1. KMS Key Alias (Recommended)**
+```
+alias/my-logging-key
+```
+Use this format for easier management. Make sure the alias exists in your AWS account.
+
+**2. KMS Key ARN (Full ARN)**
+```
+arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
+```
+Use this format for precise key identification across regions and accounts.
+
+**3. AWS-Managed Encryption (Default)**
+Leave `KmsKeyIdOrAlias` empty or omit it to use AWS-managed encryption (no customer-managed key required).
+
+**Troubleshooting KMS Errors:**
+- Ensure the KMS key exists in the same region as the log group
+- Verify your IAM role has permissions to use the KMS key
+- For alias format, confirm the alias starts with `alias/` and exists in the account
 
 ## Outputs
 
@@ -84,7 +108,7 @@ This is a **nested stack template** designed to be invoked from a parent/root Cl
 ### 1. Upload Template to S3
 
 ```bash
-aws s3 cp cloudformation/cw-log-group/template.yaml s3://your-cfn-bucket/templates/cw-log-group.yaml
+aws s3 cp cloudformation/template.yaml s3://your-cfn-bucket/templates/cw-log-group.yaml
 ```
 
 ### 2. Reference from Parent Stack
@@ -101,7 +125,7 @@ CloudWatchLogGroupNestedStack:
       LogGroupBaseName: application-logs
       Environment: !Ref Environment
       RetentionInDays: "7"
-      KmsKey: ""
+      KmsKeyIdOrAlias: ""
     Tags:
       - Key: Environment
         Value: !Ref Environment
@@ -120,7 +144,7 @@ Outputs:
 ```bash
 aws cloudformation create-stack \
   --stack-name myapp-logs-dev \
-  --template-body file://cloudformation/cw-log-group/template.yaml \
+  --template-body file://cloudformation/template.yaml \
   --parameters \
     ParameterKey=ProjectName,ParameterValue=myapp \
     ParameterKey=LogGroupBaseName,ParameterValue=application-logs \
@@ -133,13 +157,13 @@ aws cloudformation create-stack \
 ```bash
 aws cloudformation create-stack \
   --stack-name myapp-logs-prod \
-  --template-body file://cloudformation/cw-log-group/template.yaml \
+  --template-body file://cloudformation/template.yaml \
   --parameters \
     ParameterKey=ProjectName,ParameterValue=myapp \
     ParameterKey=LogGroupBaseName,ParameterValue=production-logs \
     ParameterKey=Environment,ParameterValue=prod \
     ParameterKey=RetentionInDays,ParameterValue=30 \
-    ParameterKey=KmsKey,ParameterValue=alias/my-logging-key
+    ParameterKey=KmsKeyIdOrAlias,ParameterValue=alias/my-logging-key
 ```
 
 #### Example 3: Application-Specific Log Group (14-day retention)
@@ -147,7 +171,7 @@ aws cloudformation create-stack \
 ```bash
 aws cloudformation create-stack \
   --stack-name myapp-logs-app \
-  --template-body file://cloudformation/cw-log-group/template.yaml \
+  --template-body file://cloudformation/template.yaml \
   --parameters \
     ParameterKey=ProjectName,ParameterValue=myapp \
     ParameterKey=LogGroupBaseName,ParameterValue=api-server \
@@ -160,13 +184,13 @@ aws cloudformation create-stack \
 ```bash
 aws cloudformation create-stack \
   --stack-name myapp-logs-secure \
-  --template-body file://cloudformation/cw-log-group/template.yaml \
+  --template-body file://cloudformation/template.yaml \
   --parameters \
     ParameterKey=ProjectName,ParameterValue=myapp \
     ParameterKey=LogGroupBaseName,ParameterValue=secure-logs \
     ParameterKey=Environment,ParameterValue=prod \
     ParameterKey=RetentionInDays,ParameterValue=90 \
-    ParameterKey=KmsKey,ParameterValue=arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
+    ParameterKey=KmsKeyIdOrAlias,ParameterValue=arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
 ```
 
 #### Example 5: With CI Suffix for Ephemeral Deployments
@@ -174,7 +198,7 @@ aws cloudformation create-stack \
 ```bash
 aws cloudformation create-stack \
   --stack-name myapp-logs-ci \
-  --template-body file://cloudformation/cw-log-group/template.yaml \
+  --template-body file://cloudformation/template.yaml \
   --parameters \
     ParameterKey=ProjectName,ParameterValue=myapp \
     ParameterKey=LogGroupBaseName,ParameterValue=test-logs \
