@@ -37,7 +37,7 @@ Parameters:
   KmsKeyIdOrAlias:
     Type: String
     Default: ''
-    Description: "Optional KMS Key ID or Alias for CloudWatch Log Group encryption. Accepts: KMS key ARN (arn:aws:kms:region:account:key/key-id) or alias (alias/my-key). Leave empty for AWS-managed encryption."
+    Description: "Optional KMS Key for CloudWatch Log Group encryption. Use KMS key ARN format (arn:aws:kms:region:account:key/key-id) - aliases are not supported by CloudWatch Logs encryption context. Leave empty for AWS-managed encryption."
 
 Conditions:
   HasCiSuffix: !Not [!Equals [!Ref CiSuffix, ""]]
@@ -51,8 +51,8 @@ Resources:
     Properties:
       LogGroupName: !If
         - HasCiSuffix
-        - !Sub '/${ProjectName}/${LogGroupBaseName}/${Environment}/${AWS::Region}/${CiSuffix}'
-        - !Sub '/${ProjectName}/${LogGroupBaseName}/${Environment}/${AWS::Region}'
+        - !Sub '${ProjectName}-${LogGroupBaseName}-${Environment}-${AWS::Region}-${CiSuffix}'
+        - !Sub '${ProjectName}-${LogGroupBaseName}-${Environment}-${AWS::Region}'
       RetentionInDays: !Ref RetentionInDays  # cfn-lint: disable=CW_LOGGROUP_RETENTION_PERIOD_CHECK
       KmsKeyId: !If
         - HasCustomKmsKey

@@ -68,29 +68,75 @@ This is a **nested stack template** designed to be invoked from a parent/root Cl
 | `RetentionInDays` | Number | `7` | Log retention period (1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653) |
 | `KmsKeyIdOrAlias` | String | `""` | KMS key for encryption (alias: `alias/my-key` or ARN: `arn:aws:kms:region:account:key/key-id`; empty for AWS-managed encryption) |
 
-### KMS Key Formats
+### KMS Key Format
 
-The `KmsKeyIdOrAlias` parameter accepts two formats:
+The `KmsKeyIdOrAlias` parameter supports KMS key encryption for CloudWatch Log Groups.
 
-**1. KMS Key Alias (Recommended)**
-```
-alias/my-logging-key
-```
-Use this format for easier management. Make sure the alias exists in your AWS account.
-
-**2. KMS Key ARN (Full ARN)**
+**Required Format: KMS Key ARN Only**
 ```
 arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
 ```
-Use this format for precise key identification across regions and accounts.
 
-**3. AWS-Managed Encryption (Default)**
+⚠️ **Note:** CloudWatch Logs encryption context requires the full KMS key ARN. Key aliases (e.g., `alias/my-key`) are **not supported** for CloudWatch Log Group encryption.
+
+**AWS-Managed Encryption (Default)**
 Leave `KmsKeyIdOrAlias` empty or omit it to use AWS-managed encryption (no customer-managed key required).
 
+**KMS Key Policy Requirements:**
+
+Ensure your KMS key policy includes these statements:
+
+1. **Encryption/Decryption Access:**
+```json
+{
+  "Sid": "Allow CloudWatch Logs to use the key",
+  "Effect": "Allow",
+  "Principal": {
+    "Service": "logs.amazonaws.com"
+  },
+  "Action": [
+    "kms:Encrypt",
+    "kms:Decrypt",
+    "kms:ReEncrypt*",
+    "kms:GenerateDataKey*",
+    "kms:DescribeKey"
+  ],
+  "Resource": "*",
+  "Condition": {
+    "ArnLike": {
+      "kms:EncryptionContext:aws:logs:arn": "arn:aws:logs:region:account:*"
+    }
+  }
+}
+```
+
+2. **Grant Management:**
+```json
+{
+  "Sid": "Allow CloudWatch Logs to create grants",
+  "Effect": "Allow",
+  "Principal": {
+    "Service": "logs.amazonaws.com"
+  },
+  "Action": [
+    "kms:CreateGrant",
+    "kms:ListGrants",
+    "kms:RevokeGrant"
+  ],
+  "Resource": "*",
+  "Condition": {
+    "Bool": {
+      "kms:GrantIsForAWSResource": "true"
+    }
+  }
+}
+```
+
 **Troubleshooting KMS Errors:**
-- Ensure the KMS key exists in the same region as the log group
-- Verify your IAM role has permissions to use the KMS key
-- For alias format, confirm the alias starts with `alias/` and exists in the account
+- Use the **full KMS key ARN** (not alias)
+- Ensure the KMS key exists in the **same region** as the log group
+- Verify the KMS key policy includes CloudWatch Logs service principal permissions
+- Check that encryption context conditions are properly configured
 
 ## Outputs
 
