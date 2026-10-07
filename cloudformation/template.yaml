@@ -60,8 +60,8 @@ Resources:
         - !Ref CustomLogGroupName
         - !If
           - HasCiSuffix
-          - !Sub '/${ProjectName}/${LogGroupBaseName}/${Environment}/${AWS::Region}/${CiSuffix}'
-          - !Sub '/${ProjectName}/${LogGroupBaseName}/${Environment}/${AWS::Region}'
+          - !Sub '${ProjectName}-${LogGroupBaseName}-${Environment}-${AWS::Region}-${CiSuffix}'
+          - !Sub '${ProjectName}-${LogGroupBaseName}-${Environment}-${AWS::Region}'
       RetentionInDays: !Ref RetentionInDays  # cfn-lint: disable=CW_LOGGROUP_RETENTION_PERIOD_CHECK
       KmsKeyId: !If
         - HasCustomKmsKey
