@@ -1,0 +1,5 @@
+{
+  "stackName": "cfn-nested-aws-cloudwatch-log-group-stack",
+  "templateFile": "cloudformation/cw-log-group/template.yaml",
+  "parameterFile": "cloudformation/cw-log-group/parameters.json"
+}
