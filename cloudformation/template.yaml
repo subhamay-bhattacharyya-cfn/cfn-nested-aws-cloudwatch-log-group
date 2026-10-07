@@ -1,0 +1,97 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: 'Nested CloudFormation template to create a CloudWatch Log Group with flexible configuration for retention and encryption'
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: 'proj-ztc'
+    Description: Project name to use as a log group prefix
+    MinLength: 1
+    MaxLength: 20
+    AllowedPattern: "^[a-z0-9-]+$"
+    ConstraintDescription: Project name must be lowercase letters, numbers, and hyphens only
+
+  LogGroupBaseName:
+    Type: String
+    Default: 'application-logs'
+    Description: Base name for the CloudWatch Log Group
+
+  Environment:
+    Type: String
+    Default: 'devl'
+    Description: Deployment environment for the CloudWatch Log Group
+    AllowedPattern: "^[a-z0-9-]+$"
+
+  CiSuffix:
+    Type: String
+    Default: ''
+    Description: Optional CI suffix to append to the log group name
+
+  RetentionInDays:
+    Type: Number
+    Default: 7
+    Description: Log retention period in days
+    AllowedValues: [1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653]
+
+  KmsKey:
+    Type: String
+    Default: ''
+    AllowedPattern: "^(alias/[a-zA-Z0-9_-]+|arn:aws:kms:[a-z0-9-]+:[0-9]+:key/[a-zA-Z0-9_-]+|[a-zA-Z0-9_-]+)?$"
+    ConstraintDescription: "KMS Key can be a key name (e.g., my-key, auto-converted to alias/my-key), a KMS key alias (e.g., alias/my-key), or a full KMS key ARN (e.g., arn:aws:kms:region:account:key/key-id), or leave empty for no KMS encryption"
+    Description: "Optional KMS Key for CloudWatch Log Group encryption. Accepts: key name (my-key), alias (alias/my-key), or ARN (arn:aws:kms:region:account:key/key-id). Plain key names are auto-converted to aliases."
+
+Conditions:
+  HasCiSuffix: !Not [!Equals [!Ref CiSuffix, ""]]
+  HasCustomKmsKey: !Not [!Equals [!Ref KmsKey, ""]]
+  IsKmsKeyArn: !Equals [!Select [0, !Split [':', !Ref KmsKey]], 'arn']
+  IsKmsKeyAlias: !Equals [!Select [0, !Split ['/', !Ref KmsKey]], 'alias']
+
+Resources:
+  CloudWatchLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      LogGroupName: !If
+        - HasCiSuffix
+        - !Sub '/${ProjectName}/${LogGroupBaseName}/${Environment}/${AWS::Region}/${CiSuffix}'
+        - !Sub '/${ProjectName}/${LogGroupBaseName}/${Environment}/${AWS::Region}'
+      RetentionInDays: !Ref RetentionInDays  # cfn-lint: disable=CW_LOGGROUP_RETENTION_PERIOD_CHECK
+      KmsKeyId: !If
+        - HasCustomKmsKey
+        - !If
+          - IsKmsKeyArn
+          - !Ref KmsKey
+          - !If
+            - IsKmsKeyAlias
+            - !Ref KmsKey
+            - !Sub 'alias/${KmsKey}'
+        - !Ref AWS::NoValue
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: ManagedBy
+          Value: CloudFormation
+        - Key: ProjectName
+          Value: !Ref ProjectName
+
+Outputs:
+  LogGroupName:
+    Description: Name of the CloudWatch Log Group
+    Value: !Ref CloudWatchLogGroup
+
+  LogGroupArn:
+    Description: ARN of the CloudWatch Log Group
+    Value: !GetAtt CloudWatchLogGroup.Arn
+
+  LogGroupPath:
+    Description: Full path of the CloudWatch Log Group
+    Value: !If
+      - HasCiSuffix
+      - !Sub '/${ProjectName}/${LogGroupBaseName}/${Environment}/${AWS::Region}/${CiSuffix}'
+      - !Sub '/${ProjectName}/${LogGroupBaseName}/${Environment}/${AWS::Region}'
+
+  RetentionInDays:
+    Description: Log retention period in days
+    Value: !Ref RetentionInDays

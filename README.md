@@ -1,4 +1,4 @@
-# CloudFormation DynamoDB Table Template Repository
+# CloudFormation CloudWatch Log Group Template Repository
 
 <!-- Row 1: Status - Most Important -->
 [![Release](https://github.com/subhamay-bhattacharyya-cfn/cfn-nested-aws-cloudwatch-log-group/actions/workflows/release.yaml/badge.svg)](https://github.com/subhamay-bhattacharyya-cfn/cfn-nested-aws-cloudwatch-log-group)&nbsp;[![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-blue?logo=github)](https://github.com/subhamay-bhattacharyya-cfn/cfn-nested-aws-cloudwatch-log-group)&nbsp;[![Issues](https://img.shields.io/github/issues/subhamay-bhattacharyya-cfn/cfn-nested-aws-cloudwatch-log-group)](https://github.com/subhamay-bhattacharyya-cfn/cfn-nested-aws-cloudwatch-log-group/issues)&nbsp;[![Last Commit](https://img.shields.io/github/last-commit/subhamay-bhattacharyya-cfn/cfn-nested-aws-cloudwatch-log-group)](https://github.com/subhamay-bhattacharyya-cfn/cfn-nested-aws-cloudwatch-log-group/commits)
@@ -7,7 +7,7 @@
 [![Top Language](https://img.shields.io/github/languages/top/subhamay-bhattacharyya-cfn/cfn-nested-aws-cloudwatch-log-group)](https://github.com/subhamay-bhattacharyya-cfn/cfn-nested-aws-cloudwatch-log-group)&nbsp;[![Commits](https://img.shields.io/github/commit-activity/t/subhamay-bhattacharyya-cfn/cfn-nested-aws-cloudwatch-log-group)](https://github.com/subhamay-bhattacharyya-cfn/cfn-nested-aws-cloudwatch-log-group/commits)
 
 <!-- Row 3: Tech Stack -->
-[![CloudFormation](https://img.shields.io/badge/CloudFormation-IaC-orange?logo=amazon&logoColor=white)](https://aws.amazon.com/cloudformation/)&nbsp;[![DynamoDB](https://img.shields.io/badge/DynamoDB-NoSQL-brightgreen?logo=amazon&logoColor=white)](https://aws.amazon.com/dynamodb/)&nbsp;[![Built with Claude Code](https://img.shields.io/badge/Built_with-Claude_Code-D97757?logo=anthropic&logoColor=white)](https://claude.ai/)
+[![CloudFormation](https://img.shields.io/badge/CloudFormation-IaC-orange?logo=amazon&logoColor=white)](https://aws.amazon.com/cloudformation/)&nbsp;[![CloudWatch Logs](https://img.shields.io/badge/CloudWatch_Logs-Monitoring-blue?logo=amazon&logoColor=white)](https://aws.amazon.com/cloudwatch/)&nbsp;[![Built with Claude Code](https://img.shields.io/badge/Built_with-Claude_Code-D97757?logo=anthropic&logoColor=white)](https://claude.ai/)
 
 <!-- Row 4: Repository Info -->
 [![Files](https://img.shields.io/github/directory-file-count/subhamay-bhattacharyya-cfn/cfn-nested-aws-cloudwatch-log-group)](https://github.com/subhamay-bhattacharyya-cfn/cfn-nested-aws-cloudwatch-log-group)&nbsp;[![Repo Size](https://img.shields.io/github/repo-size/subhamay-bhattacharyya-cfn/cfn-nested-aws-cloudwatch-log-group)](https://github.com/subhamay-bhattacharyya-cfn/cfn-nested-aws-cloudwatch-log-group)&nbsp;[![Release Date](https://img.shields.io/github/release-date/subhamay-bhattacharyya-cfn/cfn-nested-aws-cloudwatch-log-group)](https://github.com/subhamay-bhattacharyya-cfn/cfn-nested-aws-cloudwatch-log-group/releases)
@@ -15,7 +15,7 @@
 <!-- Row 5: Custom Metrics -->
 [![Custom Endpoint](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/bsubhamay/3226d577c398433b77e5e326acb1cc91/raw/cfn-nested-aws-cloudwatch-log-group.json)](https://gist.github.com/subhamay-bhattacharyya/3226d577c398433b77e5e326acb1cc91)
 
-This repository contains a nested CloudFormation template for deploying DynamoDB tables with flexible configuration, security best practices, and support for advanced features like streams, indexes, and encryption.
+This repository contains a nested CloudFormation template for deploying CloudWatch Log Groups with flexible configuration, security best practices, and support for log retention and KMS encryption.
 
 ## Overview
 
@@ -25,127 +25,66 @@ This is a **nested stack template** designed to be invoked from a parent/root Cl
 
 ### CloudFormation Templates
 
-- **`templates/dynamodb-table.yaml`** — Nested template for DynamoDB table creation with support for:
-  - Flexible billing modes (on-demand or provisioned)
-  - Custom partition and sort keys
-  - Local Secondary Indexes (LSI)
-  - Global Secondary Indexes (GSI)
-  - DynamoDB Streams
-  - Point-in-time recovery
-  - TTL (Time-to-Live)
-  - KMS encryption
+- **`cloudformation/cw-log-group/template.yaml`** — Nested template for CloudWatch Log Group creation with support for:
+  - Configurable log retention periods
+  - KMS encryption for log data
+  - Project-based naming convention
+  - Environment and region tagging
+  - Optional CI/CD suffix for ephemeral deployments
+  - Comprehensive logging of group creation and configuration
 
 ### Parameter Files
 
-- **`parameters/dynamodb-dev.json`** — Development environment parameters
-- **`parameters/dynamodb-staging.json`** — Staging environment parameters
-- **`parameters/dynamodb-prod.json`** — Production environment parameters
+- **`cloudformation/cw-log-group/parameters.json`** — Parameter definitions for CloudWatch Log Group
+- **`cloudformation/cw-log-group/stack-config.json`** — Stack configuration metadata
 
 ## Template Features
 
-### DynamoDB Table Template (dynamodb-table.yaml)
+### CloudWatch Log Group Template
 
-- ✅ **Flexible Billing** — On-demand (PAY_PER_REQUEST) or provisioned capacity
-- ✅ **Custom Key Schema** — Configurable partition and sort keys with multiple data types
-- ✅ **Local Secondary Indexes** — LSI support for alternative sort keys on the same partition key
-- ✅ **Global Secondary Indexes** — GSI with optional sort key and independent provisioning
-- ✅ **DynamoDB Streams** — Enable change data capture with multiple view types
-- ✅ **Point-in-Time Recovery** — Restore tables to any point in time
-- ✅ **TTL (Time-to-Live)** — Automatic item expiration
+- ✅ **Configurable Retention** — Set log retention from 1 to 3653 days
 - ✅ **KMS Encryption** — Support for customer-managed or AWS-managed keys
-- ✅ **Smart Table Naming** — Project prefix, account ID, environment, region with optional CI suffix
-- ✅ **Data Retention** — Automatic retention policy (no deletion on stack removal)
+- ✅ **Smart Naming** — Hierarchical path-based naming with project, base name, environment, and region
+- ✅ **CI/CD Integration** — Optional suffix support for ephemeral test deployments
+- ✅ **Auto-Tagging** — Automatic tags for environment, project name, and CloudFormation management
+- ✅ **Flexible Configuration** — All parameters optional with sensible defaults
+- ✅ **Validation** — CloudFormation Guard compliance for retention periods
 
 ## Parameters
 
-### Table Naming & Environment
+### Log Group Naming & Environment
 
 | Parameter | Type | Default | Description |
 | ----------- | ------ | --------- | ------------- |
 | `ProjectName` | String | `proj-ztc` | Project name prefix (lowercase, alphanumeric, hyphens only) |
-| `TableBaseName` | String | `dynamodb-table` | Base name for the DynamoDB table |
-| `Environment` | String | `devl` | Deployment environment (devl, stag, prod) |
-| `CiSuffix` | String | `""` | Optional CI suffix to append to table name (e.g., pipeline ID) |
+| `LogGroupBaseName` | String | `application-logs` | Base name for the CloudWatch Log Group |
+| `Environment` | String | `devl` | Deployment environment (devl, stag, prod, etc.) |
+| `CiSuffix` | String | `""` | Optional CI suffix to append to log group path (e.g., pipeline ID) |
 
-### Billing & Throughput
-
-| Parameter | Type | Default | Description |
-| ----------- | ------ | --------- | ------------- |
-| `BillingMode` | String | `PAY_PER_REQUEST` | Billing mode (PAY_PER_REQUEST or PROVISIONED) |
-| `ProvisionedReadCapacity` | Number | `5` | Read capacity units (1-40000, only for PROVISIONED mode) |
-| `ProvisionedWriteCapacity` | Number | `5` | Write capacity units (1-40000, only for PROVISIONED mode) |
-
-### Primary Key Configuration
+### Retention & Encryption
 
 | Parameter | Type | Default | Description |
 | ----------- | ------ | --------- | ------------- |
-| `PartitionKeyName` | String | `PK` | Name of the partition key attribute |
-| `PartitionKeyType` | String | `S` | Data type: S (String), N (Number), or B (Binary) |
-| `SortKeyName` | String | `SK` | Name of the sort key (leave empty for no sort key) |
-| `SortKeyType` | String | `S` | Data type: S (String), N (Number), or B (Binary) |
-
-### Encryption & Security
-
-| Parameter | Type | Default | Description |
-| ----------- | ------ | --------- | ------------- |
-| `KmsKey` | String | `SB-KMS` | KMS key for encryption (name, alias, or ARN; empty for AWS-managed key) |
-
-### Streams & CDC
-
-| Parameter | Type | Default | Description |
-| ----------- | ------ | --------- | ------------- |
-| `EnableStreams` | String | `false` | Enable DynamoDB Streams (true or false) |
-| `StreamViewType` | String | `NEW_AND_OLD_IMAGES` | Stream info: KEYS_ONLY, NEW_IMAGE, OLD_IMAGE, or NEW_AND_OLD_IMAGES |
-
-### Backup & Recovery
-
-| Parameter | Type | Default | Description |
-| ----------- | ------ | --------- | ------------- |
-| `EnablePointInTimeRecovery` | String | `false` | Enable point-in-time recovery (true or false) |
-
-### TTL Configuration
-
-| Parameter | Type | Default | Description |
-| ----------- | ------ | --------- | ------------- |
-| `EnableTTL` | String | `false` | Enable TTL for automatic item expiration (true or false) |
-| `TTLAttributeName` | String | `ExpirationTime` | Name of the TTL attribute |
-
-### Local Secondary Indexes
-
-| Parameter | Type | Default | Description |
-| ----------- | ------ | --------- | ------------- |
-| `LSI1Enabled` | String | `false` | Enable Local Secondary Index 1 (requires sort key on base table) |
-| `LSI1AttributeName` | String | `LSI1SK` | Sort key attribute name for LSI1 |
-| `LSI1AttributeType` | String | `S` | Data type: S (String), N (Number), or B (Binary) |
-
-### Global Secondary Indexes
-
-| Parameter | Type | Default | Description |
-| ----------- | ------ | --------- | ------------- |
-| `GSI1Enabled` | String | `false` | Enable Global Secondary Index 1 |
-| `GSI1PartitionKeyName` | String | `GSI1PK` | Partition key attribute name for GSI1 |
-| `GSI1PartitionKeyType` | String | `S` | Data type: S (String), N (Number), or B (Binary) |
-| `GSI1SortKeyName` | String | `""` | Optional sort key attribute name for GSI1 |
-| `GSI1SortKeyType` | String | `S` | Data type: S (String), N (Number), or B (Binary) |
-| `GSI1ReadCapacity` | Number | `5` | Read capacity for GSI1 (only for PROVISIONED mode) |
-| `GSI1WriteCapacity` | Number | `5` | Write capacity for GSI1 (only for PROVISIONED mode) |
+| `RetentionInDays` | Number | `7` | Log retention period (1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653) |
+| `KmsKey` | String | `""` | KMS key for encryption (name, alias, or ARN; empty for AWS-managed key) |
 
 ## Outputs
 
-### DynamoDB Table Template Outputs
+### CloudWatch Log Group Template Outputs
 
 | Output | Type | Description |
 | ----------- | ------ | ------------- |
-| `TableName` | String | Name of the created DynamoDB table (exported for cross-stack reference) |
-| `TableArn` | String | ARN of the created DynamoDB table (exported for cross-stack reference) |
-| `StreamArn` | String | ARN of the DynamoDB Stream (only when EnableStreams is true) |
+| `LogGroupName` | String | Name of the created CloudWatch Log Group |
+| `LogGroupArn` | String | ARN of the CloudWatch Log Group |
+| `LogGroupPath` | String | Full path of the CloudWatch Log Group |
+| `RetentionInDays` | Number | Configured retention period |
 
 ## Usage
 
 ### 1. Upload Template to S3
 
 ```bash
-aws s3 cp templates/dynamodb-table.yaml s3://your-cfn-bucket/templates/dynamodb-table.yaml
+aws s3 cp cloudformation/cw-log-group/template.yaml s3://your-cfn-bucket/templates/cw-log-group.yaml
 ```
 
 ### 2. Reference from Parent Stack
@@ -153,205 +92,159 @@ aws s3 cp templates/dynamodb-table.yaml s3://your-cfn-bucket/templates/dynamodb-
 In your parent/root CloudFormation template:
 
 ```yaml
-DynamoDBTableNestedStack:
+CloudWatchLogGroupNestedStack:
   Type: AWS::CloudFormation::Stack
   Properties:
-    TemplateURL: https://s3.amazonaws.com/your-cfn-bucket/templates/dynamodb-table.yaml
+    TemplateURL: https://s3.amazonaws.com/your-cfn-bucket/templates/cw-log-group.yaml
     Parameters:
       ProjectName: !Ref ProjectName
-      TableBaseName: users-table
+      LogGroupBaseName: application-logs
       Environment: !Ref Environment
-      BillingMode: PAY_PER_REQUEST
-      PartitionKeyName: UserID
-      PartitionKeyType: S
-      SortKeyName: CreatedAt
-      SortKeyType: S
-      EnableStreams: "true"
-      EnablePointInTimeRecovery: "true"
-      EnableTTL: "false"
-      GSI1Enabled: "true"
-      GSI1PartitionKeyName: Email
-      GSI1PartitionKeyType: S
+      RetentionInDays: "7"
+      KmsKey: ""
     Tags:
       - Key: Environment
         Value: !Ref Environment
 
 Outputs:
-  TableName:
-    Value: !GetAtt DynamoDBTableNestedStack.Outputs.TableName
-  TableArn:
-    Value: !GetAtt DynamoDBTableNestedStack.Outputs.TableArn
-  StreamArn:
-    Value: !GetAtt DynamoDBTableNestedStack.Outputs.StreamArn
+  LogGroupName:
+    Value: !GetAtt CloudWatchLogGroupNestedStack.Outputs.LogGroupName
+  LogGroupArn:
+    Value: !GetAtt CloudWatchLogGroupNestedStack.Outputs.LogGroupArn
 ```
 
 ### 3. Deploy Using AWS CLI
 
-#### Example 1: Basic On-Demand Table
+#### Example 1: Basic Log Group (7-day retention)
 
 ```bash
 aws cloudformation create-stack \
-  --stack-name myapp-dynamodb-dev \
-  --template-body file://templates/dynamodb-table.yaml \
-  --parameters file://parameters/dynamodb-dev.json
-```
-
-#### Example 2: Provisioned Capacity with GSI
-
-```bash
-aws cloudformation create-stack \
-  --stack-name myapp-dynamodb-prod \
-  --template-body file://templates/dynamodb-table.yaml \
+  --stack-name myapp-logs-dev \
+  --template-body file://cloudformation/cw-log-group/template.yaml \
   --parameters \
     ParameterKey=ProjectName,ParameterValue=myapp \
-    ParameterKey=TableBaseName,ParameterValue=orders \
-    ParameterKey=Environment,ParameterValue=prod \
-    ParameterKey=BillingMode,ParameterValue=PROVISIONED \
-    ParameterKey=ProvisionedReadCapacity,ParameterValue=100 \
-    ParameterKey=ProvisionedWriteCapacity,ParameterValue=100 \
-    ParameterKey=PartitionKeyName,ParameterValue=OrderID \
-    ParameterKey=PartitionKeyType,ParameterValue=S \
-    ParameterKey=SortKeyName,ParameterValue=OrderDate \
-    ParameterKey=SortKeyType,ParameterValue=S \
-    ParameterKey=GSI1Enabled,ParameterValue=true \
-    ParameterKey=GSI1PartitionKeyName,ParameterValue=CustomerID \
-    ParameterKey=GSI1PartitionKeyType,ParameterValue=S \
-    ParameterKey=GSI1SortKeyName,ParameterValue=OrderDate \
-    ParameterKey=GSI1SortKeyType,ParameterValue=S \
-    ParameterKey=GSI1ReadCapacity,ParameterValue=50 \
-    ParameterKey=GSI1WriteCapacity,ParameterValue=50
+    ParameterKey=LogGroupBaseName,ParameterValue=application-logs \
+    ParameterKey=Environment,ParameterValue=devl \
+    ParameterKey=RetentionInDays,ParameterValue=7
 ```
 
-#### Example 3: With Streams and Point-in-Time Recovery
+#### Example 2: Production Log Group (30-day retention, KMS encrypted)
 
 ```bash
 aws cloudformation create-stack \
-  --stack-name myapp-dynamodb-events \
-  --template-body file://templates/dynamodb-table.yaml \
+  --stack-name myapp-logs-prod \
+  --template-body file://cloudformation/cw-log-group/template.yaml \
   --parameters \
     ParameterKey=ProjectName,ParameterValue=myapp \
-    ParameterKey=TableBaseName,ParameterValue=events \
+    ParameterKey=LogGroupBaseName,ParameterValue=production-logs \
     ParameterKey=Environment,ParameterValue=prod \
-    ParameterKey=BillingMode,ParameterValue=PAY_PER_REQUEST \
-    ParameterKey=PartitionKeyName,ParameterValue=EventID \
-    ParameterKey=PartitionKeyType,ParameterValue=S \
-    ParameterKey=SortKeyName,ParameterValue=Timestamp \
-    ParameterKey=SortKeyType,ParameterValue=N \
-    ParameterKey=EnableStreams,ParameterValue=true \
-    ParameterKey=StreamViewType,ParameterValue=NEW_AND_OLD_IMAGES \
-    ParameterKey=EnablePointInTimeRecovery,ParameterValue=true
+    ParameterKey=RetentionInDays,ParameterValue=30 \
+    ParameterKey=KmsKey,ParameterValue=alias/my-logging-key
 ```
 
-#### Example 4: With TTL and LSI
+#### Example 3: Application-Specific Log Group (14-day retention)
 
 ```bash
 aws cloudformation create-stack \
-  --stack-name myapp-dynamodb-sessions \
-  --template-body file://templates/dynamodb-table.yaml \
+  --stack-name myapp-logs-app \
+  --template-body file://cloudformation/cw-log-group/template.yaml \
   --parameters \
     ParameterKey=ProjectName,ParameterValue=myapp \
-    ParameterKey=TableBaseName,ParameterValue=sessions \
-    ParameterKey=Environment,ParameterValue=prod \
-    ParameterKey=BillingMode,ParameterValue=PAY_PER_REQUEST \
-    ParameterKey=PartitionKeyName,ParameterValue=SessionID \
-    ParameterKey=PartitionKeyType,ParameterValue=S \
-    ParameterKey=SortKeyName,ParameterValue=UserID \
-    ParameterKey=SortKeyType,ParameterValue=S \
-    ParameterKey=EnableTTL,ParameterValue=true \
-    ParameterKey=TTLAttributeName,ParameterValue=ExpiresAt \
-    ParameterKey=LSI1Enabled,ParameterValue=true \
-    ParameterKey=LSI1AttributeName,ParameterValue=CreatedAt \
-    ParameterKey=LSI1AttributeType,ParameterValue=N
+    ParameterKey=LogGroupBaseName,ParameterValue=api-server \
+    ParameterKey=Environment,ParameterValue=devl \
+    ParameterKey=RetentionInDays,ParameterValue=14
 ```
 
-#### Example 5: With Custom KMS Encryption
+#### Example 4: With Custom KMS Encryption (ARN)
 
 ```bash
 aws cloudformation create-stack \
-  --stack-name myapp-dynamodb-secure \
-  --template-body file://templates/dynamodb-table.yaml \
+  --stack-name myapp-logs-secure \
+  --template-body file://cloudformation/cw-log-group/template.yaml \
   --parameters \
     ParameterKey=ProjectName,ParameterValue=myapp \
-    ParameterKey=TableBaseName,ParameterValue=sensitive-data \
+    ParameterKey=LogGroupBaseName,ParameterValue=secure-logs \
     ParameterKey=Environment,ParameterValue=prod \
-    ParameterKey=BillingMode,ParameterValue=PROVISIONED \
-    ParameterKey=ProvisionedReadCapacity,ParameterValue=10 \
-    ParameterKey=ProvisionedWriteCapacity,ParameterValue=10 \
-    ParameterKey=PartitionKeyName,ParameterValue=DataID \
-    ParameterKey=PartitionKeyType,ParameterValue=S \
+    ParameterKey=RetentionInDays,ParameterValue=90 \
     ParameterKey=KmsKey,ParameterValue=arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
 ```
 
-#### Example 6: With CI Suffix
+#### Example 5: With CI Suffix for Ephemeral Deployments
 
 ```bash
 aws cloudformation create-stack \
-  --stack-name myapp-dynamodb-ci \
-  --template-body file://templates/dynamodb-table.yaml \
+  --stack-name myapp-logs-ci \
+  --template-body file://cloudformation/cw-log-group/template.yaml \
   --parameters \
     ParameterKey=ProjectName,ParameterValue=myapp \
-    ParameterKey=TableBaseName,ParameterValue=test-table \
+    ParameterKey=LogGroupBaseName,ParameterValue=test-logs \
     ParameterKey=Environment,ParameterValue=test \
     ParameterKey=CiSuffix,ParameterValue=$CI_PIPELINE_ID \
-    ParameterKey=BillingMode,ParameterValue=PAY_PER_REQUEST \
-    ParameterKey=PartitionKeyName,ParameterValue=PK \
-    ParameterKey=PartitionKeyType,ParameterValue=S
+    ParameterKey=RetentionInDays,ParameterValue=1
 ```
 
 #### Monitoring Stack Creation
 
 ```bash
 # Wait for stack creation to complete
-aws cloudformation wait stack-create-complete --stack-name myapp-dynamodb-dev
+aws cloudformation wait stack-create-complete --stack-name myapp-logs-dev
 
 # Get stack outputs
 aws cloudformation describe-stacks \
-  --stack-name myapp-dynamodb-dev \
+  --stack-name myapp-logs-dev \
   --query 'Stacks[0].Outputs' \
   --output table
 
-# Get table details
-TABLE_NAME=$(aws cloudformation describe-stacks \
-  --stack-name myapp-dynamodb-dev \
-  --query 'Stacks[0].Outputs[?OutputKey==`TableName`].OutputValue' \
+# Get log group details
+LOG_GROUP_NAME=$(aws cloudformation describe-stacks \
+  --stack-name myapp-logs-dev \
+  --query 'Stacks[0].Outputs[?OutputKey==`LogGroupName`].OutputValue' \
   --output text)
 
-aws dynamodb describe-table --table-name $TABLE_NAME
+aws logs describe-log-groups --log-group-name-prefix "$LOG_GROUP_NAME"
 ```
 
-## Table Naming Convention
+## Log Group Naming Convention
 
-The template generates table names using the following pattern:
+The template generates log group paths using the following pattern:
 
 **Without CI Suffix:**
 
 ```bash
-{ProjectName}-{TableBaseName}-{AccountId}-{Environment}-{Region}
+/{ProjectName}/{LogGroupBaseName}/{Environment}/{Region}
 ```
 
-Example: `myapp-users-table-123456789012-devl-us-east-1`
+Example: `/myapp/application-logs/devl/us-east-1`
 
 **With CI Suffix:**
 
 ```bash
-{ProjectName}-{TableBaseName}-{AccountId}-{Environment}-{Region}-{CiSuffix}
+/{ProjectName}/{LogGroupBaseName}/{Environment}/{Region}/{CiSuffix}
 ```
 
-Example: `myapp-users-table-123456789012-devl-us-east-1-pipeline-12345`
+Example: `/myapp/application-logs/test/us-east-1/pipeline-12345`
 
 ## Best Practices Implemented
 
-- ✅ KMS encryption enabled by default (AWS-managed key)
-- ✅ Flexible billing modes (on-demand for dev, provisioned for production)
-- ✅ Point-in-time recovery support for disaster recovery
-- ✅ DynamoDB Streams for change data capture
-- ✅ TTL support for automatic data expiration
-- ✅ LSI and GSI support for flexible querying patterns
-- ✅ Smart table naming with project prefix, account ID, environment, and region
-- ✅ Optional CI suffix support for ephemeral test deployments
-- ✅ Data retention policy (table not deleted when stack is removed)
-- ✅ Automatic tagging for resource management
-- ✅ Export values for cross-stack references
+- ✅ KMS encryption support for sensitive logs
+- ✅ Hierarchical naming convention for log organization
+- ✅ Configurable retention policies for cost optimization
+- ✅ Project-based isolation and tagging
+- ✅ Environment-aware configuration
+- ✅ Optional CI/CD suffix support for ephemeral deployments
+- ✅ Auto-tagging for resource management and billing allocation
+- ✅ CloudFormation Guard compliance for retention periods
+- ✅ Support for AWS-managed and customer-managed encryption keys
+
+## Supported Retention Periods
+
+AWS CloudWatch Logs only supports specific retention periods:
+
+```text
+1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653 days
+```
+
+The template validates that the provided retention period is one of these supported values.
 
 ## License
 
