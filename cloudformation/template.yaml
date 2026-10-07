@@ -39,9 +39,15 @@ Parameters:
     Default: ''
     Description: "Optional KMS Key for CloudWatch Log Group encryption. Use KMS key ARN format (arn:aws:kms:region:account:key/key-id) - aliases are not supported by CloudWatch Logs encryption context. Leave empty for AWS-managed encryption."
 
+  CustomLogGroupName:
+    Type: String
+    Default: ''
+    Description: "Optional custom log group name/path. If provided, this overrides the project-based naming convention. Example: /aws/lambda/my-function or /aws/codebuild/my-project. Leave empty to use project-based naming."
+
 Conditions:
   HasCiSuffix: !Not [!Equals [!Ref CiSuffix, ""]]
   HasCustomKmsKey: !Not [!Equals [!Ref KmsKeyIdOrAlias, ""]]
+  UseCustomLogGroupName: !Not [!Equals [!Ref CustomLogGroupName, ""]]
 
 Resources:
   CloudWatchLogGroup:
@@ -50,9 +56,12 @@ Resources:
     UpdateReplacePolicy: Delete
     Properties:
       LogGroupName: !If
-        - HasCiSuffix
-        - !Sub '${ProjectName}-${LogGroupBaseName}-${Environment}-${AWS::Region}-${CiSuffix}'
-        - !Sub '${ProjectName}-${LogGroupBaseName}-${Environment}-${AWS::Region}'
+        - UseCustomLogGroupName
+        - !Ref CustomLogGroupName
+        - !If
+          - HasCiSuffix
+          - !Sub '/${ProjectName}/${LogGroupBaseName}/${Environment}/${AWS::Region}/${CiSuffix}'
+          - !Sub '/${ProjectName}/${LogGroupBaseName}/${Environment}/${AWS::Region}'
       RetentionInDays: !Ref RetentionInDays  # cfn-lint: disable=CW_LOGGROUP_RETENTION_PERIOD_CHECK
       KmsKeyId: !If
         - HasCustomKmsKey
@@ -78,9 +87,12 @@ Outputs:
   LogGroupPath:
     Description: Full path of the CloudWatch Log Group
     Value: !If
-      - HasCiSuffix
-      - !Sub '/${ProjectName}/${LogGroupBaseName}/${Environment}/${AWS::Region}/${CiSuffix}'
-      - !Sub '/${ProjectName}/${LogGroupBaseName}/${Environment}/${AWS::Region}'
+      - UseCustomLogGroupName
+      - !Ref CustomLogGroupName
+      - !If
+        - HasCiSuffix
+        - !Sub '/${ProjectName}/${LogGroupBaseName}/${Environment}/${AWS::Region}/${CiSuffix}'
+        - !Sub '/${ProjectName}/${LogGroupBaseName}/${Environment}/${AWS::Region}'
 
   RetentionInDays:
     Description: Log retention period in days

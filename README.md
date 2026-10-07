@@ -66,7 +66,8 @@ This is a **nested stack template** designed to be invoked from a parent/root Cl
 | Parameter | Type | Default | Description |
 | ----------- | ------ | --------- | ------------- |
 | `RetentionInDays` | Number | `7` | Log retention period (1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653) |
-| `KmsKeyIdOrAlias` | String | `""` | KMS key for encryption (alias: `alias/my-key` or ARN: `arn:aws:kms:region:account:key/key-id`; empty for AWS-managed encryption) |
+| `KmsKeyIdOrAlias` | String | `""` | KMS key for encryption (ARN only: `arn:aws:kms:region:account:key/key-id`; empty for AWS-managed encryption) |
+| `CustomLogGroupName` | String | `""` | Optional custom log group name/path (e.g., `/aws/lambda/my-function`). If provided, overrides project-based naming. |
 
 ### KMS Key Format
 
@@ -137,6 +138,91 @@ Ensure your KMS key policy includes these statements:
 - Ensure the KMS key exists in the **same region** as the log group
 - Verify the KMS key policy includes CloudWatch Logs service principal permissions
 - Check that encryption context conditions are properly configured
+
+## AWS Service Log Groups
+
+The template supports AWS service log groups with custom naming patterns using the `CustomLogGroupName` parameter.
+
+### Supported AWS Service Log Patterns
+
+| Service | Log Group Pattern | Example |
+| --- | --- | --- |
+| **Lambda** | `/aws/lambda/function-name` | `/aws/lambda/my-function` |
+| **CodeBuild** | `/aws/codebuild/project-name` | `/aws/codebuild/my-build-project` |
+| **ECS** | `/aws/ecs/service-name` | `/aws/ecs/my-service` |
+| **API Gateway** | `/aws/apigateway/api-name` | `/aws/apigateway/my-api` |
+| **RDS** | `/aws/rds/instance/db-instance-name` | `/aws/rds/instance/my-database` |
+| **Kinesis** | `/aws/kinesisfirehose/delivery-stream-name` | `/aws/kinesisfirehose/my-stream` |
+| **CloudTrail** | `/aws/cloudtrail/organization` | `/aws/cloudtrail/my-organization` |
+
+### Using Custom Log Group Names
+
+Set `CustomLogGroupName` to override the default project-based naming:
+
+```bash
+# Lambda function logs
+aws cloudformation create-stack \
+  --stack-name lambda-logs \
+  --template-body file://cloudformation/template.yaml \
+  --parameters \
+    ParameterKey=CustomLogGroupName,ParameterValue=/aws/lambda/my-function \
+    ParameterKey=RetentionInDays,ParameterValue=7
+
+# CodeBuild project logs
+aws cloudformation create-stack \
+  --stack-name codebuild-logs \
+  --template-body file://cloudformation/template.yaml \
+  --parameters \
+    ParameterKey=CustomLogGroupName,ParameterValue=/aws/codebuild/my-project \
+    ParameterKey=RetentionInDays,ParameterValue=14
+
+# ECS service logs
+aws cloudformation create-stack \
+  --stack-name ecs-logs \
+  --template-body file://cloudformation/template.yaml \
+  --parameters \
+    ParameterKey=CustomLogGroupName,ParameterValue=/aws/ecs/my-service \
+    ParameterKey=RetentionInDays,ParameterValue=30
+
+# RDS instance logs
+aws cloudformation create-stack \
+  --stack-name rds-logs \
+  --template-body file://cloudformation/template.yaml \
+  --parameters \
+    ParameterKey=CustomLogGroupName,ParameterValue=/aws/rds/instance/my-db \
+    ParameterKey=RetentionInDays,ParameterValue=7
+
+# With KMS encryption
+aws cloudformation create-stack \
+  --stack-name secure-logs \
+  --template-body file://cloudformation/template.yaml \
+  --parameters \
+    ParameterKey=CustomLogGroupName,ParameterValue=/aws/lambda/secure-function \
+    ParameterKey=RetentionInDays,ParameterValue=30 \
+    ParameterKey=KmsKeyIdOrAlias,ParameterValue=arn:aws:kms:us-east-1:ACCOUNT:key/KEY-ID
+```
+
+### Default Project-Based Naming
+
+When `CustomLogGroupName` is empty (default), the template uses:
+
+```
+/{ProjectName}/{LogGroupBaseName}/{Environment}/{Region}
+```
+
+Example:
+
+```bash
+aws cloudformation create-stack \
+  --stack-name app-logs \
+  --template-body file://cloudformation/template.yaml \
+  --parameters \
+    ParameterKey=ProjectName,ParameterValue=myapp \
+    ParameterKey=LogGroupBaseName,ParameterValue=application \
+    ParameterKey=Environment,ParameterValue=prod
+```
+
+Creates: `/myapp/application/prod/us-east-1`
 
 ## Outputs
 
