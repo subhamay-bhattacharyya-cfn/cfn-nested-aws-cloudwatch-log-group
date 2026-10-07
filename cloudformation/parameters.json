@@ -1,5 +1,5 @@
 {
   "Environment": "devl",
-  "KmsKeyIdOrAlias": "arn:aws:kms:us-east-1:270453428528:key/def2b277-df43-4249-ae47-2e26041448f3",
+  "KmsKeyIdOrAlias": "SB-KMS",
   "CiSuffix": ""
 }
