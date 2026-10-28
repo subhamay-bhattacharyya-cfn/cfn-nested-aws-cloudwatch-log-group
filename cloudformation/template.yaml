@@ -5,7 +5,7 @@ Description: 'Nested CloudFormation template to create a CloudWatch Log Group wi
 Parameters:
   ProjectName:
     Type: String
-    Default: 'proj-ztc'
+    Default: "cfn-nested"
     Description: Project name to use as a log group prefix
     MinLength: 1
     MaxLength: 20
@@ -20,6 +20,7 @@ Parameters:
   Environment:
     Type: String
     Default: 'devl'
+    AllowedValues: ['devl', 'test', 'prod']
     Description: Deployment environment for the CloudWatch Log Group
     AllowedPattern: "^[a-z0-9-]+$"
 

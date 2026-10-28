@@ -1,4 +1,4 @@
-# CloudFormation CloudWatch Log Group Template Repository
+# CloudFormation Nested Stack Template : CloudWatch Log Group
 
 <!-- Row 1: Status - Most Important -->
 [![Release](https://github.com/subhamay-bhattacharyya-cfn/cfn-nested-aws-cloudwatch-log-group/actions/workflows/release.yaml/badge.svg)](https://github.com/subhamay-bhattacharyya-cfn/cfn-nested-aws-cloudwatch-log-group)&nbsp;[![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-blue?logo=github)](https://github.com/subhamay-bhattacharyya-cfn/cfn-nested-aws-cloudwatch-log-group)&nbsp;[![Issues](https://img.shields.io/github/issues/subhamay-bhattacharyya-cfn/cfn-nested-aws-cloudwatch-log-group)](https://github.com/subhamay-bhattacharyya-cfn/cfn-nested-aws-cloudwatch-log-group/issues)&nbsp;[![Last Commit](https://img.shields.io/github/last-commit/subhamay-bhattacharyya-cfn/cfn-nested-aws-cloudwatch-log-group)](https://github.com/subhamay-bhattacharyya-cfn/cfn-nested-aws-cloudwatch-log-group/commits)
